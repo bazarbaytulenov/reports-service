@@ -12,6 +12,20 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+  client-backend:
+    image: reports-service:0.0.1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres
+      - rabbitmq
+      - minio/minio
+    environment:
+      - SERVER_PORT= 8082
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/report_db
 
   minio:
     image: minio/minio
