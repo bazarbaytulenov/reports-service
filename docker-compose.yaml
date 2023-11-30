@@ -21,7 +21,7 @@ services:
       MINIO_SECRET_KEY: fqX4U6Xs8aAob945IsyORVGoUPXLpjye5uKRJLcN
     command: server /data
   client-backend:
-    image: reports-service:0.0.1
+    image: reports-service:latest
     build:
       context: .
       dockerfile: Dockerfile

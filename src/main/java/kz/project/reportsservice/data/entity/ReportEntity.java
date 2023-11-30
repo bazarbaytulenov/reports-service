@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name="report",schema="report_schema")
+@Table(name="report")
 @Data
 @NoArgsConstructor
 public class ReportEntity {
