@@ -25,3 +25,7 @@ services:
     environment:
       - SERVER_PORT= 8082
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/report_db
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
