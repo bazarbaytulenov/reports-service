@@ -1,4 +1,4 @@
-FROM adoptopenjdk:17-jre-hotspot
+FROM amazoncorretto:17.0.7-alpine
 
 COPY build/libs/reports-service-app.jar /app.jar
 
