@@ -1,12 +1,5 @@
 version: '3'
 services:
-  postgres:
-    image: postgres
-    environment:
-      POSTGRES_DB: report_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-
   rabbitmq:
     image: rabbitmq
     ports:
@@ -28,7 +21,6 @@ services:
     ports:
       - "8082:8082"
     depends_on:
-      - postgres
       - rabbitmq
     environment:
       - SERVER_PORT= 8082
