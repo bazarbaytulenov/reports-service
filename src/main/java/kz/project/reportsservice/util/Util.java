@@ -1,6 +1,8 @@
 package kz.project.reportsservice.util;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Paragraph;
@@ -8,6 +10,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 import freemarker.cache.ByteArrayTemplateLoader;
 import freemarker.core.ParseException;
 import freemarker.template.*;
+import kz.project.reportsservice.data.dto.MessageDto;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JsonDataSource;
 
@@ -84,4 +87,11 @@ public class Util {
         }
         return null;
     }
+
+    public static String maptToString(MessageDto message) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String s = objectMapper.writeValueAsString(message.getJsonData());
+        return s;
+    }
+
 }

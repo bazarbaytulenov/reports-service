@@ -1,5 +1,6 @@
 package kz.project.reportsservice.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.FileNotFoundException;
+import java.util.Base64;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -63,6 +65,9 @@ public class ReportsController {
             log.error(e.getMessage(), e);
             return ResponseEntity.ok(new ResponseDto(null, e.getMessage(), null));
         } catch (JRException e) {
+            log.error(e.getMessage(), e);
+            return ResponseEntity.ok(new ResponseDto(null, e.getMessage(), null));
+        } catch (JsonProcessingException e) {
             log.error(e.getMessage(), e);
             return ResponseEntity.ok(new ResponseDto(null, e.getMessage(), null));
         }
