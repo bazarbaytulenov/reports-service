@@ -1,7 +1,9 @@
-FROM amazoncorretto:17.0.7-alpine
+FROM xldevops/jdk17-lts
 
-COPY build/libs/reports-service-app.jar /app.jar
+ARG JAR_FILE=build/libs/reports-service-app.jar
 
-EXPOSE 8082
+#RUN mkdir /app
 
-CMD ["java", "-jar", "/app.jar"]
+COPY ${JAR_FILE} /spring-boot-application.jar
+
+ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar","/spring-boot-application.jar"]
