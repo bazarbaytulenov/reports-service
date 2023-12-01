@@ -34,4 +34,4 @@ services:
     environment:
       MINIO_ACCESS_KEY: GybLCvfdVzlyUIME08qc
       MINIO_SECRET_KEY: fqX4U6Xs8aAob945IsyORVGoUPXLpjye5uKRJLcN
-#    command: server /data
+    command: server /data

@@ -22,17 +22,17 @@ spring:
     username: ${RABBITMQ_USERNAME:guest}
     password: ${RABBITMQ_PASSWORD:guest}
 #Minio Properties
-  minio:
-    url: ${MINIO_URL:http://127.0.0.1:9000}
-    bucket: ${MINIO_BUCKET:file-storage}
-    access-key: ${MINIO_ACCESS_KEY:GybLCvfdVzlyUIME08qc}
-    secret-key: ${MINIO_SECRET_KEY:fqX4U6Xs8aAob945IsyORVGoUPXLpjye5uKRJLcN}
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: ${MAX_FILE_SIZE:20MB}
-      max-request-size: ${MAX_REQUEST_SIZE:20MB}
-      file-size-threshold: ${FILE-SIZE-THRESHOLD:2KB}
+#  minio:
+#    url: ${MINIO_URL:http://127.0.0.1:9000}
+#    bucket: ${MINIO_BUCKET:file-storage}
+#    access-key: ${MINIO_ACCESS_KEY:GybLCvfdVzlyUIME08qc}
+#    secret-key: ${MINIO_SECRET_KEY:fqX4U6Xs8aAob945IsyORVGoUPXLpjye5uKRJLcN}
+#  servlet:
+#    multipart:
+#      enabled: true
+#      max-file-size: ${MAX_FILE_SIZE:20MB}
+#      max-request-size: ${MAX_REQUEST_SIZE:20MB}
+#      file-size-threshold: ${FILE-SIZE-THRESHOLD:2KB}
 
   #Swagger Properties
 springdoc:
