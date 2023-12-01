@@ -1,4 +1,3 @@
-#Docker-compose2.yml
 version: '3'
 services:
   postgres:
@@ -7,15 +6,27 @@ services:
       POSTGRES_DB: report_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-    expose:
-      - 5433
-    ports:
-      - "5432:5433"
+
   rabbitmq:
     image: rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
+  client-backend:
+    image: reports-service:0.0.1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres
+      - rabbitmq
+      - minio/minio
+    environment:
+      - SERVER_PORT= 8082
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/report_db
+
   minio:
     image: minio/minio
     ports:
@@ -24,25 +35,3 @@ services:
       MINIO_ACCESS_KEY: GybLCvfdVzlyUIME08qc
       MINIO_SECRET_KEY: fqX4U6Xs8aAob945IsyORVGoUPXLpjye5uKRJLcN
     command: server /data
-  client-backend:
-    image: reports-service:latest
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "8082:8082"
-    depends_on:
-      - rabbitmq
-      - postgres
-    environment:
-      - SERVER_PORT= 8082
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5433/report_db
-      - SPRING_RABBITMQ_HOST=rabbitmq
-      - SPRING_RABBITMQ_PORT=5672
-      - SPRING_RABBITMQ_USERNAME=guest
-      - SPRING_RABBITMQ_PASSWORD=guest
-#    networks:
-#      - common_network
-#networks:
-#  common_network:
-#    external: true
