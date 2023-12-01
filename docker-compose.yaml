@@ -10,9 +10,7 @@ services:
     expose:
       - 5433
     ports:
-      - "5433:5433"
-    networks:
-      - common_network
+      - "5432:5433"
   rabbitmq:
     image: rabbitmq
     ports:
