@@ -1,28 +1,25 @@
 package kz.project.reportsservice.util;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 import freemarker.cache.ByteArrayTemplateLoader;
-import freemarker.core.ParseException;
-import freemarker.template.*;
-import kz.project.reportsservice.data.dto.MessageDto;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JsonDataSource;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Util {
-    public static JasperPrint generateReport(Map<String, byte[]> template, String json) throws JRException, FileNotFoundException {
+    public static JasperPrint generateReport(Map<String, byte[]> template, byte [] json) throws JRException, FileNotFoundException {
         JasperReport jasperReport = JasperCompileManager.compileReport(new ByteArrayInputStream(template.get("body")));
-        JsonDataSource data1Source = new JsonDataSource(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
+        JsonDataSource data1Source = new JsonDataSource(new ByteArrayInputStream(json));
         Map<String, Object> parameters = new HashMap<>();
         return JasperFillManager.fillReport(jasperReport, parameters, data1Source);
 
@@ -39,7 +36,7 @@ public class Util {
 
         // Создание TemplateLoader с использованием массива байт
         ByteArrayTemplateLoader templateLoader = new ByteArrayTemplateLoader();
-        templateLoader.putTemplate("dynamicTemplate", temp.get("body"));
+        templateLoader.putTemplate(name, temp.get("body"));
         // Установка TemplateLoader в конфигурацию FreeMarker
         cfg.setTemplateLoader(templateLoader);
 
@@ -88,10 +85,10 @@ public class Util {
         return null;
     }
 
-    public static String maptToString(MessageDto message) throws JsonProcessingException {
+  /*  public static String maptToString(ReportDto message) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        String s = objectMapper.writeValueAsString(message.getJsonData());
+        String s = objectMapper.writeValueAsString(message.g.getJsonData());
         return s;
-    }
+    }*/
 
 }

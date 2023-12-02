@@ -1,7 +1,7 @@
 package kz.project.reportsservice.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import kz.project.reportsservice.data.dto.MessageDto;
+import kz.project.reportsservice.data.dto.AmqpDto;
+import kz.project.reportsservice.data.dto.ReportDto;
 import kz.project.reportsservice.data.dto.ResponseDto;
 import kz.project.reportsservice.data.entity.ReportEntity;
 import kz.project.reportsservice.data.repository.ReportRepository;
@@ -13,12 +13,12 @@ import lombok.RequiredArgsConstructor;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperExportManager;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Map;
 
 import static kz.project.reportsservice.util.Util.generateReport;
-import static kz.project.reportsservice.util.Util.maptToString;
 
 @Service
 @RequiredArgsConstructor
@@ -29,19 +29,21 @@ public class ReportServiceImpl implements ReportService {
     private final ReportRepository repository;
 
     @Override
-    public ResponseDto getReport(MessageDto dto) throws FileNotFoundException, JRException, JsonProcessingException {
+    public ResponseDto getReport(ReportDto dto, MultipartFile jsonData) throws IOException, JRException {
         if (dto == null) return new ResponseDto(null, "dto is empty", null);
+        byte[] contentAsByteArray = jsonData.getResource().getContentAsByteArray();
         if (dto.getIsAcync()) {
-            producer.sendMessage(dto);
+            producer.sendMessage(new AmqpDto(dto,contentAsByteArray));
             return new ResponseDto("send to service", null, null);
         }
 
         Map<String, byte[]> template = feignClient.getTemplate(dto.getTemplateCode());
-        if(dto.getType().equals("jasper"))
-            return new ResponseDto("report is create", null, JasperExportManager.exportReportToPdf(generateReport(template, maptToString(dto))));
+        if(dto.getType().equals("jasper")) {
+                        return new ResponseDto("report is create", null, JasperExportManager.exportReportToPdf(generateReport(template, contentAsByteArray)));
+        }
         if(dto.getType().equals("freemarker"))
-            return  new ResponseDto("report is create", null, Util.getPdf(template,maptToString(dto),dto.getName()));
-        else return new ResponseDto(null, "Тип не поддерживается", Util.getPdf(template,maptToString(dto),dto.getName()));
+            return  new ResponseDto("report is create", null, Util.getPdf(template,new String(contentAsByteArray),dto.getName()));
+        else return new ResponseDto(null, "Тип не поддерживается", null);
     }
 
     @Override
@@ -54,6 +56,7 @@ public class ReportServiceImpl implements ReportService {
         }
         return new ResponseDto("the report has not yet been generated", null, null);
     }
+
 
 
 }

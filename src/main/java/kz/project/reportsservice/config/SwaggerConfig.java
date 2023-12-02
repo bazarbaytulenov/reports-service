@@ -13,12 +13,11 @@ import org.springframework.context.annotation.Configuration;
 
 @OpenAPIDefinition(
         info = @Info(
-                title = "Loyalty System Api",
-                description = "Loyalty System", version = "1.0.0",
+                title = "Report System Api",
+                description = "Report System", version = "1.0.0",
                 contact = @Contact(
-                        name = "Struchkov Mark",
-                        email = "mark@struchkov.dev",
-                        url = "https://mark.struchkov.dev"
+                        name = "tulenov_b",
+                        email = "tulenov_b@dev.kz"
                 )
         )
 )

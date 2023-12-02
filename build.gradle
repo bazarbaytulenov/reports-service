@@ -53,7 +53,7 @@ dependencies {
 	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
 	implementation 'org.modelmapper:modelmapper:3.2.0'
 	implementation 'commons-codec:commons-codec:1.16.0'
-	implementation 'org.json:json:20231013'
+	implementation 'commons-fileupload:commons-fileupload:1.4'
 //	implementation "org.flywaydb:flyway-core"
 
 }
