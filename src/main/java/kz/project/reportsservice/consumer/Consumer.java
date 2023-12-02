@@ -42,7 +42,7 @@ public class Consumer {
                 reportEntity.setErrorMessage(e.getMessage());
             }
         } else if (message.getDto().getType().equals("freemarker")) {
-            Util.getPdf(template,new String(message.getJsonData()),message.getDto().getName());
+            bytes=Util.getPdf(template,new String(message.getJsonData()),message.getDto().getName());
 
         }
         reportEntity.setReport(bytes);

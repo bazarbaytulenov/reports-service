@@ -30,7 +30,7 @@ public class Util {
 
         // Динамический ключ (может быть изменен в зависимости от сценария)
         String dynamicKey = "dynamicData";
-        data.put(dynamicKey, jsonData);
+        data.put(name, jsonData);
 
         Configuration cfg = new Configuration(Configuration.VERSION_2_3_31);
 
