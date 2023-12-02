@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperExportManager;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
@@ -25,11 +26,10 @@ import static kz.project.reportsservice.util.Util.maptToString;
 @RequiredArgsConstructor
 @Slf4j
 public class Consumer {
-
     private final PrintedFormsFeignClient feignClient;
     private final ReportRepository repository;
 
-    @RabbitListener(queues = "#{autoDeleteQueue2.name}")
+    @RabbitListener(queues = "${rabbitmq.queue}")
     public void consume(MessageDto message) throws JsonProcessingException {
         Map<String,byte[]> template = feignClient.getTemplate(message.getTemplateCode());
         byte[] bytes = new byte[0];

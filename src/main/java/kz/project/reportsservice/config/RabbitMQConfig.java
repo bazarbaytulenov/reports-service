@@ -51,10 +51,10 @@ public class RabbitMQConfig {
         return rabbitTemplate;
     }
 
-    @Bean
+ /*   @Bean
     public AnonymousQueue autoDeleteQueue2() {
         return new AnonymousQueue();
-    }
+    }*/
 
 
 
