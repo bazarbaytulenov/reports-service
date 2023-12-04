@@ -5,6 +5,14 @@ import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
+import fr.opensagres.xdocreport.converter.ConverterTypeTo;
+import fr.opensagres.xdocreport.converter.ConverterTypeVia;
+import fr.opensagres.xdocreport.converter.Options;
+import fr.opensagres.xdocreport.core.XDocReportException;
+import fr.opensagres.xdocreport.document.IXDocReport;
+import fr.opensagres.xdocreport.document.registry.XDocReportRegistry;
+import fr.opensagres.xdocreport.template.IContext;
+import fr.opensagres.xdocreport.template.TemplateEngineKind;
 import freemarker.cache.ByteArrayTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -56,6 +64,22 @@ public class Util {
         }
         return null;
     }
+        public static byte[] createPdfFromXDocReport(Map<String, byte[]> temp, String jsonData, String name) throws IOException, XDocReportException {
+
+        IXDocReport report  = XDocReportRegistry.getRegistry().loadReport(new ByteArrayInputStream(temp.get("body")), TemplateEngineKind.Freemarker);
+        IContext context = report.createContext();
+        Map<String, Object> data = new HashMap<>();
+
+        // Динамический ключ (может быть изменен в зависимости от сценария)
+        String dynamicKey = "dynamicData";
+        data.put(dynamicKey, jsonData);
+        context.putMap(data);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        Options via = Options.getTo(ConverterTypeTo.PDF).via(ConverterTypeVia.XWPF);
+        report.convert(context,via,byteArrayOutputStream);
+        return byteArrayOutputStream.toByteArray();
+    }
+
 
     private static byte[] createPdf(StringWriter sw) {
         try {

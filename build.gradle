@@ -46,6 +46,8 @@ dependencies {
 		exclude('org.springframework.boot:spring-boot-starters')
 	}*/
 	implementation 'com.itextpdf:itextpdf:5.5.13'
+	implementation 'fr.opensagres.xdocreport:fr.opensagres.xdocreport.document:2.0.4'
+	implementation 'fr.opensagres.xdocreport:fr.opensagres.xdocreport.template.freemarker:2.0.4'
 
 
 	compileOnly 'org.projectlombok:lombok:1.18.28'
