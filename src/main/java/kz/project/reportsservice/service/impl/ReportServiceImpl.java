@@ -6,6 +6,7 @@ import kz.project.reportsservice.data.dto.ReportDto;
 import kz.project.reportsservice.data.dto.ResponseDto;
 import kz.project.reportsservice.data.entity.ReportEntity;
 import kz.project.reportsservice.data.repository.ReportRepository;
+import kz.project.reportsservice.enums.TemplateTypeEnum;
 import kz.project.reportsservice.feign.PrintedFormsFeignClient;
 import kz.project.reportsservice.producer.Producer;
 import kz.project.reportsservice.service.ReportService;
@@ -39,12 +40,12 @@ public class ReportServiceImpl implements ReportService {
         }
 
         Map<String, byte[]> template = feignClient.getTemplate(dto.getTemplateCode());
-        if(dto.getType().equals("jasper")) {
+        if(dto.getType().equals(TemplateTypeEnum.JASPER.getValue())) {
                         return new ResponseDto("report is create", null, JasperExportManager.exportReportToPdf(generateReport(template, contentAsByteArray)));
         }
-        if(dto.getType().equals("freemarker"))
+        if(dto.getType().equals(TemplateTypeEnum.FREEMARKER.getValue()))
             return  new ResponseDto("report is create", null, Util.getPdf(template,new String(contentAsByteArray),dto.getName()));
-        if(dto.getType().equals("xDocReport"))
+        if(dto.getType().equals(TemplateTypeEnum.XDOCREPORT.getValue()))
             return  new ResponseDto("report is create", null, Util.createPdfFromXDocReport(template,new String(contentAsByteArray),dto.getName()));
         else return new ResponseDto(null, "Тип не поддерживается", null);
     }
