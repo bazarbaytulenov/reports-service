@@ -1,5 +1,6 @@
 package kz.project.reportsservice.service.impl;
 
+import fr.opensagres.xdocreport.core.XDocReportException;
 import kz.project.reportsservice.data.dto.AmqpDto;
 import kz.project.reportsservice.data.dto.ReportDto;
 import kz.project.reportsservice.data.dto.ResponseDto;
@@ -29,7 +30,7 @@ public class ReportServiceImpl implements ReportService {
     private final ReportRepository repository;
 
     @Override
-    public ResponseDto getReport(ReportDto dto, MultipartFile jsonData) throws IOException, JRException {
+    public ResponseDto getReport(ReportDto dto, MultipartFile jsonData) throws IOException, JRException, XDocReportException {
         if (dto == null) return new ResponseDto(null, "dto is empty", null);
         byte[] contentAsByteArray = jsonData.getResource().getContentAsByteArray();
         if (dto.getIsAcync()) {
@@ -43,6 +44,8 @@ public class ReportServiceImpl implements ReportService {
         }
         if(dto.getType().equals("freemarker"))
             return  new ResponseDto("report is create", null, Util.getPdf(template,new String(contentAsByteArray),dto.getName()));
+        if(dto.getType().equals("xDocReport"))
+            return  new ResponseDto("report is create", null, Util.createPdfFromXDocReport(template,new String(contentAsByteArray),dto.getName()));
         else return new ResponseDto(null, "Тип не поддерживается", null);
     }
 
