@@ -17,8 +17,8 @@ public class ReportDto {
     @Schema(name ="isAcync" ,description = "Флаг для генерации отчета асинхронна")
     private Boolean isAcync;
     @NotBlank
-    @Schema(name = "templateCode",description = "Код шаблона")
-    private String templateCode;
+    @Schema(name = "id",description = "Код шаблона")
+    private Long id;
     @NotBlank
     @Schema(name = "requestId", description = "Id запроса")
     private Integer requestId;

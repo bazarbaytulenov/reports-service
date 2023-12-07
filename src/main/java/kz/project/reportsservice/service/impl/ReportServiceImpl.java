@@ -39,7 +39,7 @@ public class ReportServiceImpl implements ReportService {
             return new ResponseDto("send to service", null, null);
         }
 
-        Map<String, byte[]> template = feignClient.getTemplate(dto.getTemplateCode());
+        Map<String, byte[]> template = feignClient.getTemplate(dto.getId());
         if(dto.getType().equals(TemplateTypeEnum.JASPER.getValue())) {
                         return new ResponseDto("report is create", null, JasperExportManager.exportReportToPdf(generateReport(template, contentAsByteArray)));
         }

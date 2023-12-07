@@ -28,7 +28,7 @@ public class Consumer {
 
     @RabbitListener(queues = "${rabbitmq.queue}")
     public void consume(AmqpDto message) throws JsonProcessingException {
-        Map<String, byte[]> template = feignClient.getTemplate(message.getDto().getTemplateCode());
+        Map<String, byte[]> template = feignClient.getTemplate(message.getDto().getId());
         byte[] bytes = new byte[0];
         ReportEntity reportEntity = new ReportEntity();
         if (message.getDto().getType().equals("jasper")) {

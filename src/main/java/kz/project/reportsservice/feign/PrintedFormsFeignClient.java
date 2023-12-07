@@ -11,6 +11,6 @@ import java.util.Map;
 public interface PrintedFormsFeignClient {
 
     @GetMapping("/{code}")
-    Map<String, byte[]> getTemplate(@PathVariable("code") String templateCode);
+    Map<String, byte[]> getTemplate(@PathVariable("code") Long id);
 
 }

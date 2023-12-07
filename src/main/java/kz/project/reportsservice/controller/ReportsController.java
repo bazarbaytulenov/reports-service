@@ -1,6 +1,7 @@
 package kz.project.reportsservice.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import fr.opensagres.xdocreport.core.XDocReportException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,7 +30,7 @@ public class ReportsController {
     @PutMapping(value = "/get", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(description = "Метод для получения списков документов")
     public ResponseEntity<ResponseDto> getReport(@RequestParam("jsonData") MultipartFile jsonData,
-                                                  ReportDto dto) throws IOException {
+                                                 @RequestParam("dto") ReportDto dto) throws IOException, XDocReportException {
         try {
             return ResponseEntity.ok(service.getReport(dto, jsonData ));
         } catch (FileNotFoundException e) {
