@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -14,21 +16,22 @@ import lombok.NoArgsConstructor;
 @Schema(name = "ReportDto", description = "Запрос")
 public class ReportDto {
     @NotBlank
-    @Schema(name ="isAcync" ,description = "Флаг для генерации отчета асинхронна")
-    private Boolean isAcync;
+    @Schema(name ="fileName" ,description = "Флаг для генерации отчета асинхронна")
+    private String fileName;
     @NotBlank
-    @Schema(name = "id",description = "Код шаблона")
-    private Long id;
+    @Schema(name ="acync" ,description = "Флаг для генерации отчета асинхронна")
+    private Boolean acync;
     @NotBlank
-    @Schema(name = "requestId", description = "Id запроса")
-    private Integer requestId;
+    @Schema(name ="inline" ,description = "Флаг для генерации отчета асинхронна")
+    private Boolean inline;
     @NotBlank
-    @Schema(name = "type", description = "Формат шаблона")
-    private String type;
+    @Schema(name = "templateId",description = "Код шаблона")
+    private Long templateId;
+    @Schema(name = "reportType",description = "Код шаблона")
+    private String reportType;
     @NotBlank
-    @Schema(name = "name", description = "Название шаблона")
-    private String name;
-    @NotBlank
-    @Schema(name = "url", description = "Аддрес куда нужно отправить сформированный отчет")
-    private String url;
+    @Schema(name = "data", description = "Данные")
+    private String data;
+
+
 }
