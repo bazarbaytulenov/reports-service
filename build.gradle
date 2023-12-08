@@ -57,6 +57,7 @@ dependencies {
 	implementation 'commons-codec:commons-codec:1.16.0'
 	implementation 'commons-fileupload:commons-fileupload:1.4'
 	implementation 'org.apache.xmlgraphics:batik-bridge:1.17'
+	implementation 'org.apache.odftoolkit:simple-odf:0.8.2-incubating'
 //	implementation "org.flywaydb:flyway-core"
 
 }
