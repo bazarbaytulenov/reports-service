@@ -32,25 +32,12 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class Util {
-    public static byte[] generateJasperReport(byte[] template, String json) throws JRException, FileNotFoundException, JsonProcessingException {
+    public static JasperPrint generateJasperReport(byte[] template, String json) throws JRException, FileNotFoundException, JsonProcessingException {
 
         JasperReport jasperReport = JasperCompileManager.compileReport(new ByteArrayInputStream(template));
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, Object> parameters = objectMapper.readValue(json,Map.class);
-        JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, new JREmptyDataSource());
-
-        // Экспорт в PDF
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        JRPdfExporter exporter = new JRPdfExporter();
-        exporter.setExporterInput(new SimpleExporterInput(jasperPrint));
-        exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(byteArrayOutputStream));
-        exporter.exportReport();
-
-        // Получение содержимого PDF в виде байтового массива
-        byte[] pdfBytes = byteArrayOutputStream.toByteArray();
-       // return JasperFillManager.fillReport(jasperReport, parameters, data1Source);
-        return pdfBytes;
+        JsonDataSource data1Source = new JsonDataSource(new ByteArrayInputStream(json.getBytes()));
+        Map<String, Object> parameters = new HashMap<>();
+        return JasperFillManager.fillReport(jasperReport, parameters, data1Source);
 
     }
 

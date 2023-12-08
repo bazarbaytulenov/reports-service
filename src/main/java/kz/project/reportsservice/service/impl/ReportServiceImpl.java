@@ -3,7 +3,7 @@ package kz.project.reportsservice.service.impl;
 import fr.opensagres.xdocreport.core.XDocReportException;
 import fr.opensagres.xdocreport.document.json.JSONObject;
 import kz.project.reportsservice.data.dto.AmqpDto;
-import kz.project.reportsservice.data.dto.ReportDto;
+
 import kz.project.reportsservice.error.ResponseDto;
 import kz.project.reportsservice.data.entity.ReportEntity;
 import kz.project.reportsservice.data.repository.ReportRepository;
@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperExportManager;
 import org.springframework.stereotype.Service;
+import kz.project.reportsservice.data.dto.ReportDto;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -54,7 +55,7 @@ public class ReportServiceImpl implements ReportService {
                     Map<String, byte[]> body = new HashMap<>();
                     body.put("body", templBody);
                     body.put("body", templhead);
-                    byte[] bytes = generateJasperReport(templBody, dto.getData());
+                    byte[] bytes = JasperExportManager.exportReportToPdf(generateJasperReport(templBody, dto.getData()));
                     yield bytes;
                 }
                 default -> null;
