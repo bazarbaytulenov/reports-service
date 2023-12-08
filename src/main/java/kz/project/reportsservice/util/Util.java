@@ -1,6 +1,8 @@
 package kz.project.reportsservice.util;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Paragraph;
@@ -19,21 +21,40 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JsonDataSource;
+import net.sf.jasperreports.engine.export.JRPdfExporter;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
+import org.odftoolkit.simple.TextDocument;
 
 import java.io.*;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class Util {
-    public static JasperPrint generateReport(Map<String, byte[]> template, byte [] json) throws JRException, FileNotFoundException {
-        JasperReport jasperReport = JasperCompileManager.compileReport(new ByteArrayInputStream(template.get("body")));
-        JsonDataSource data1Source = new JsonDataSource(new ByteArrayInputStream(json));
-        Map<String, Object> parameters = new HashMap<>();
-        return JasperFillManager.fillReport(jasperReport, parameters, data1Source);
+    public static byte[] generateJasperReport(byte[] template, String json) throws JRException, FileNotFoundException, JsonProcessingException {
+
+        JasperReport jasperReport = JasperCompileManager.compileReport(new ByteArrayInputStream(template));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, Object> parameters = objectMapper.readValue(json,Map.class);
+        JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, new JREmptyDataSource());
+
+        // Экспорт в PDF
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        JRPdfExporter exporter = new JRPdfExporter();
+        exporter.setExporterInput(new SimpleExporterInput(jasperPrint));
+        exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(byteArrayOutputStream));
+        exporter.exportReport();
+
+        // Получение содержимого PDF в виде байтового массива
+        byte[] pdfBytes = byteArrayOutputStream.toByteArray();
+       // return JasperFillManager.fillReport(jasperReport, parameters, data1Source);
+        return pdfBytes;
 
     }
 
-    public static byte[] getPdf(Map<String, byte[]> temp, String jsonData, String name) {
+    public static byte[] generateFreeemarkerReport(byte[] temp, String jsonData, String name) {
         Map<String, Object> data = new HashMap<>();
 
         // Динамический ключ (может быть изменен в зависимости от сценария)
@@ -44,13 +65,15 @@ public class Util {
 
         // Создание TemplateLoader с использованием массива байт
         ByteArrayTemplateLoader templateLoader = new ByteArrayTemplateLoader();
-        templateLoader.putTemplate(name, temp.get("body"));
+        templateLoader.putTemplate(name, temp);
         // Установка TemplateLoader в конфигурацию FreeMarker
         cfg.setTemplateLoader(templateLoader);
 
         try {
             // Загрузка шаблона из файла (или ресурса)
-            Template template = cfg.getTemplate(name);
+            Template template = new Template("dynamicTemplate", new String(temp), cfg);
+
+            //Template template = cfg.getTemplate(name);
 
             // Обработка шаблона
             StringWriter stringWriter = new StringWriter();
@@ -64,9 +87,43 @@ public class Util {
         }
         return null;
     }
-        public static byte[] createPdfFromXDocReport(Map<String, byte[]> temp, String jsonData, String name) throws IOException, XDocReportException {
+        public static byte[] generateFromXDocReport( byte[]temp, String jsonData, String name) throws IOException, XDocReportException {
+            try {
+                byte[] templateBytes = temp;
+                String jsonString = jsonData;
 
-        IXDocReport report  = XDocReportRegistry.getRegistry().loadReport(new ByteArrayInputStream(temp.get("body")), TemplateEngineKind.Freemarker);
+                // Динамический анализ JSON
+                ObjectMapper mapper = new ObjectMapper();
+                Map<String, Object> dataMap = mapper.readValue(jsonString, Map.class);
+
+                // Создание InputStream из байтового массива
+                InputStream is = new ByteArrayInputStream(templateBytes);
+                TextDocument document = TextDocument.loadDocument(is);
+                // Заполнение шаблона данными
+                for (Iterator<org.odftoolkit.simple.text.Paragraph> it = document.getParagraphIterator(); it.hasNext(); ) {
+                    org.odftoolkit.simple.text.Paragraph paragraph = it.next();
+                    String text = paragraph.getTextContent();
+                    for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
+                        // Предполагаем, что ключи в JSON соответствуют заполнителям в шаблоне
+                        String placeholder = "${" + entry.getKey() + "}";
+                        if (text.contains(placeholder)) {
+                            text = text.replace(placeholder, entry.getValue().toString());
+                            paragraph.setTextContent(text);
+                        }
+                    }
+                }
+
+                // Сохранение измененного документа
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                document.save(bos);
+                return bos.toByteArray();
+            } catch (Exception e) {
+                e.printStackTrace();return null;
+            }
+
+
+
+        /*IXDocReport report  = XDocReportRegistry.getRegistry().loadReport(new ByteArrayInputStream(temp), TemplateEngineKind.Freemarker);
         IContext context = report.createContext();
         Map<String, Object> data = new HashMap<>();
 
@@ -77,7 +134,7 @@ public class Util {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         Options via = Options.getTo(ConverterTypeTo.PDF).via(ConverterTypeVia.XWPF);
         report.convert(context,via,byteArrayOutputStream);
-        return byteArrayOutputStream.toByteArray();
+        return byteArrayOutputStream.toByteArray();*/
     }
 
 

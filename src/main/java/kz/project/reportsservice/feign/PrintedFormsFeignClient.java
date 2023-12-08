@@ -1,6 +1,7 @@
 package kz.project.reportsservice.feign;
 
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -11,6 +12,6 @@ import java.util.Map;
 public interface PrintedFormsFeignClient {
 
     @GetMapping("/{code}")
-    Map<String, byte[]> getTemplate(@PathVariable("code") Long id);
+    Map<String, byte[]>  getTemplate(@PathVariable("code") Long id);
 
 }
