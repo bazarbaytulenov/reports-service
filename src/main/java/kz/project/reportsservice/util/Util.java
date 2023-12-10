@@ -3,110 +3,91 @@ package kz.project.reportsservice.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.pdf.PdfWriter;
-import fr.opensagres.xdocreport.converter.ConverterTypeTo;
-import fr.opensagres.xdocreport.converter.ConverterTypeVia;
-import fr.opensagres.xdocreport.converter.Options;
 import fr.opensagres.xdocreport.core.XDocReportException;
-import fr.opensagres.xdocreport.document.IXDocReport;
-import fr.opensagres.xdocreport.document.registry.XDocReportRegistry;
-import fr.opensagres.xdocreport.template.IContext;
-import fr.opensagres.xdocreport.template.TemplateEngineKind;
 import freemarker.cache.ByteArrayTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JsonDataSource;
-import net.sf.jasperreports.engine.export.JRPdfExporter;
-import net.sf.jasperreports.export.SimpleExporterInput;
-import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.odftoolkit.simple.TextDocument;
 
 import java.io.*;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 
 public class Util {
-    public static JasperPrint generateJasperReport(byte[] template, String json) throws JRException, FileNotFoundException, JsonProcessingException {
-
+    public static JasperPrint generateJasperReport(byte[] template, byte[] json) throws JRException, FileNotFoundException {
         JasperReport jasperReport = JasperCompileManager.compileReport(new ByteArrayInputStream(template));
-        JsonDataSource data1Source = new JsonDataSource(new ByteArrayInputStream(json.getBytes()));
+        jasperReport.setProperty("locale", "ru_Rus");
+        JsonDataSource data1Source = new JsonDataSource(new ByteArrayInputStream(json));
+        Locale locale = new Locale("ru", "RU");
         Map<String, Object> parameters = new HashMap<>();
+        parameters.put("REPORT_LOCALE", locale);
+        parameters.put("net.sf.jasperreports.export.character.encoding", "UTF-8");
+        parameters.put("net.sf.jasperreports.export.xml.encoding", "UTF-8");
+        jasperReport.setProperty("net.sf.jasperreports.export.character.encoding", "UTF-8");
+        parameters.put("net.sf.jasperreports.export.pdf.font.name", "DejaVu Sans");
+        parameters.put("net.sf.jasperreports.export.pdf.embedded", true);
         return JasperFillManager.fillReport(jasperReport, parameters, data1Source);
 
     }
 
-    public static byte[] generateFreeemarkerReport(byte[] temp, String jsonData, String name) {
-        Map<String, Object> data = new HashMap<>();
+    public static byte[] generateFreeemarkerReport(byte[] temp, String jsonData, String name) throws IOException, TemplateException {
+        StringWriter stringWriter = getStringWriter(temp, jsonData, name);
+        return createPdf(stringWriter);
+    }
 
-        // Динамический ключ (может быть изменен в зависимости от сценария)
+    public static StringWriter getStringWriter(byte[] temp, String jsonData, String name) throws IOException, TemplateException {
         String dynamicKey = "dynamicData";
-        data.put(name, jsonData);
-
+        Map<String, Object> data = new ObjectMapper().readValue(jsonData, Map.class);
         Configuration cfg = new Configuration(Configuration.VERSION_2_3_31);
-
-        // Создание TemplateLoader с использованием массива байт
         ByteArrayTemplateLoader templateLoader = new ByteArrayTemplateLoader();
         templateLoader.putTemplate(name, temp);
-        // Установка TemplateLoader в конфигурацию FreeMarker
         cfg.setTemplateLoader(templateLoader);
-
-        try {
-            // Загрузка шаблона из файла (или ресурса)
-            Template template = new Template("dynamicTemplate", new String(temp), cfg);
-
-            //Template template = cfg.getTemplate(name);
-
-            // Обработка шаблона
-            StringWriter stringWriter = new StringWriter();
-            template.process(data, stringWriter);
-
-            // Вывод результата
-            System.out.println(stringWriter.toString());
-            return createPdf(stringWriter);
-        } catch (IOException | TemplateException e) {
-            e.printStackTrace();
-        }
-        return null;
+        Template template = new Template("dynamicTemplate", new String(temp), cfg);
+        StringWriter stringWriter = new StringWriter();
+        template.process(data, stringWriter);
+        return stringWriter;
     }
-        public static byte[] generateFromXDocReport( byte[]temp, String jsonData, String name) throws IOException, XDocReportException {
-            try {
-                byte[] templateBytes = temp;
-                String jsonString = jsonData;
 
-                // Динамический анализ JSON
-                ObjectMapper mapper = new ObjectMapper();
-                Map<String, Object> dataMap = mapper.readValue(jsonString, Map.class);
+    public static byte[] generateFromXDocReport(byte[] temp, String jsonData, String name) throws IOException, XDocReportException {
+        try {
+            byte[] templateBytes = temp;
+            String jsonString = jsonData;
 
-                // Создание InputStream из байтового массива
-                InputStream is = new ByteArrayInputStream(templateBytes);
-                TextDocument document = TextDocument.loadDocument(is);
-                // Заполнение шаблона данными
-                for (Iterator<org.odftoolkit.simple.text.Paragraph> it = document.getParagraphIterator(); it.hasNext(); ) {
-                    org.odftoolkit.simple.text.Paragraph paragraph = it.next();
-                    String text = paragraph.getTextContent();
-                    for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
-                        // Предполагаем, что ключи в JSON соответствуют заполнителям в шаблоне
-                        String placeholder = "${" + entry.getKey() + "}";
-                        if (text.contains(placeholder)) {
-                            text = text.replace(placeholder, entry.getValue().toString());
-                            paragraph.setTextContent(text);
-                        }
+            // Динамический анализ JSON
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> dataMap = mapper.readValue(jsonString, Map.class);
+            InputStream is = new ByteArrayInputStream(templateBytes);
+            TextDocument document = TextDocument.loadDocument(is);
+            for (Iterator<org.odftoolkit.simple.text.Paragraph> it = document.getParagraphIterator(); it.hasNext(); ) {
+                org.odftoolkit.simple.text.Paragraph paragraph = it.next();
+                String text = paragraph.getTextContent();
+                for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
+                    String placeholder = "${" + entry.getKey() + "}";
+                    if (text.contains(placeholder)) {
+                        text = text.replace(placeholder, entry.getValue().toString());
+                        paragraph.setTextContent(text);
                     }
                 }
-
-                // Сохранение измененного документа
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                document.save(bos);
-                return bos.toByteArray();
-            } catch (Exception e) {
-                e.printStackTrace();return null;
             }
+
+            // Сохранение измененного документа
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            document.save(bos);
+            return bos.toByteArray();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
 
 
 
@@ -125,38 +106,68 @@ public class Util {
     }
 
 
-    private static byte[] createPdf(StringWriter sw) {
-        try {
-            // Создание документа PDF
-            Document document = new Document();
+    private static byte[] createPdf(StringWriter sw) throws IOException {
+        // Создание документа PDF
+        //Document document = new Document();
 
-            // Использование ByteArrayOutputStream для сохранения PDF в byte[]
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            PdfWriter.getInstance(document, byteArrayOutputStream);
+        // Использование ByteArrayOutputStream для сохранения PDF в byte[]
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        // PdfWriter.getInstance(document, byteArrayOutputStream);
+        PDDocument document = new PDDocument();
+        PDPage page = new PDPage();
+        document.addPage(page);
 
-            // Открытие документа для записи
-            document.open();
-
-            // Добавление содержимого из StringWriter в PDF
-            document.add(new Paragraph(sw.toString()));
-
-            // Закрытие документа
-            document.close();
-
-            // Получение PDF в виде byte[]
-            byte[] pdfBytes = byteArrayOutputStream.toByteArray();
-            return pdfBytes;
-
-        } catch (DocumentException e) {
-            e.printStackTrace();
+        // Открытие документа для записи
+        // document.open();
+        try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
+            PDType0Font font = PDType0Font.load(document, Util.class.getResourceAsStream("/arialmt.ttf"));
+            contentStream.setFont(font, 12);
+            contentStream.beginText();
+            contentStream.newLineAtOffset(50, 700);
+            contentStream.showText(sw.toString());
+            contentStream.endText();
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
         }
-        return null;
+        document.save(byteArrayOutputStream);
+        document.close();
+
+        //}
+        // Добавление содержимого из StringWriter в PDF
+        //document.add(new Paragraph(sw.toString()));
+
+        // Закрытие документа
+        //document.close();
+
+        // Получение PDF в виде byte[]
+        byte[] pdfBytes = byteArrayOutputStream.toByteArray();
+        return pdfBytes;
+
     }
 
   /*  public static String maptToString(ReportDto message) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         String s = objectMapper.writeValueAsString(message.g.getJsonData());
         return s;
+    }*/
+
+    /*private static String convertToHTML(TextDocument textDocument) {
+        StringBuilder htmlContent = new StringBuilder();
+
+        // Iterate through paragraphs and lists
+        for (Paragraph paragraph : textDocument.getParagraphList()) {
+            htmlContent.append("<p>").append(paragraph.getString()).append("</p>");
+        }
+
+        for (List list : textDocument.getListList()) {
+            htmlContent.append("<ul>");
+            for (ListItem listItem : list.getListItems()) {
+                htmlContent.append("<li>").append(listItem.getParagraph().getString()).append("</li>");
+            }
+            htmlContent.append("</ul>");
+        }
+
+        return htmlContent.toString();
     }*/
 
 }
