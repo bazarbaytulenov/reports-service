@@ -168,8 +168,7 @@ public class ReportServiceImpl implements ReportService {
                 case DOC -> null;
                 case HTML -> new ResponseDto(getStringWriter(templBody,new String(contentAsByteArray), dto.getFileName())
                         .toString()
-                        .getBytes(StandardCharsets.UTF_8)
-                        ,ReportTypeEnum.HTML);
+                        .getBytes(StandardCharsets.UTF_8),ReportTypeEnum.HTML);
                 case XML -> null;
                 case PDF -> {
                     Map<String, byte[]> body = new HashMap<>();
