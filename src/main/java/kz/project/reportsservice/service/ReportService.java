@@ -9,7 +9,7 @@ import net.sf.jasperreports.engine.JRException;
 import java.io.IOException;
 
 public interface ReportService {
-    ResponseDto getReport(ReportDto dto) throws IOException, JRException, XDocReportException, TemplateException;
+    ResponseDto getReport(ReportDto dto) throws Exception;
 
     byte[] getAsyncReport(Integer requestId);
 }

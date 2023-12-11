@@ -37,6 +37,8 @@ public class ReportsController {
             case PDF -> getResponse(report.getData(),MediaType.APPLICATION_PDF,"attachment;filename=download.pdf");
             case HTML -> getResponse(report.getData(),MediaType.TEXT_HTML,"attachment;filename=download.html");
             case XML -> getResponse(report.getData(),MediaType.APPLICATION_XML,"attachment;filename=download.xml");
+            case RTF -> getResponse(report.getData(),MediaType.parseMediaType("application/rtf"),"attachment;filename=download.rtf");
+            case  CSV -> getResponse(report.getData(),MediaType.parseMediaType("text/csv"),"attachment;filename=download.csv");
             default -> null;
         };
     }

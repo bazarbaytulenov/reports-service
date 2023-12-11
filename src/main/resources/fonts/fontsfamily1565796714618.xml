@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fontFamilies>
+    <fontFamily name="Times New Roman">
+        <normal><![CDATA[fonts/Times New Roman/timesnewromanpsmt.ttf]]></normal>
+        <pdfEncoding><![CDATA[Identity-H]]></pdfEncoding>
+        <exportFonts/>
+    </fontFamily>
+</fontFamilies>

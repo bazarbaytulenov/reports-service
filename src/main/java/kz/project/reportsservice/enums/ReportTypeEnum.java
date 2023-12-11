@@ -8,7 +8,10 @@ public enum ReportTypeEnum {
     DOC("doc"),
     PDF("pdf"),
     HTML("html"),
-    XML("xml");
+    XML("xml"),
+    RTF("rtf"),
+    CSV("csv");
+
 
     @Getter
     private String value;

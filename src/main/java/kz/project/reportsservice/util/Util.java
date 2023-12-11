@@ -4,20 +4,39 @@ package kz.project.reportsservice.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itextpdf.text.Paragraph;
+import fr.opensagres.xdocreport.converter.ConverterTypeTo;
+import fr.opensagres.xdocreport.converter.Options;
 import fr.opensagres.xdocreport.core.XDocReportException;
+import fr.opensagres.xdocreport.core.document.DocumentKind;
+import fr.opensagres.xdocreport.document.IXDocReport;
+import fr.opensagres.xdocreport.template.IContext;
+import fr.opensagres.xdocreport.template.TemplateEngineKind;
+import fr.opensagres.xdocreport.template.formatter.FieldsMetadata;
+import fr.opensagres.xdocreport.template.formatter.IDocumentFormatter;
+import fr.opensagres.xdocreport.template.freemarker.FreemarkerTemplateEngine;
 import freemarker.cache.ByteArrayTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JsonDataSource;
+import org.apache.fop.apps.Fop;
+import org.apache.fop.apps.FopFactory;
+import org.apache.fop.apps.MimeConstants;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.odftoolkit.simple.TextDocument;
 
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
@@ -40,10 +59,16 @@ public class Util {
 
     }
 
-    public static byte[] generateFreeemarkerReport(byte[] temp, String jsonData, String name) throws IOException, TemplateException {
-        StringWriter stringWriter = getStringWriter(temp, jsonData, name);
-        return createPdf(stringWriter);
+    public static byte[] generateFreeemarkerReport(byte[] temp, String jsonData, String name) throws Exception {
+         return convertToPdf(getStringWriter(temp,jsonData,name).toString());
+
+
+       /* StringWriter stringWriter = getStringWriter(temp, jsonData, name);
+        FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
+        fopFactory.newFop(MimeConstants.MIME_PDF,new ByteArrayOutputStream(stringWriter.toString().getBytes(StandardCharsets.UTF_8)))
+        return createPdf(stringWriter);*/
     }
+
 
     public static StringWriter getStringWriter(byte[] temp, String jsonData, String name) throws IOException, TemplateException {
         String dynamicKey = "dynamicData";
@@ -58,7 +83,53 @@ public class Util {
         return stringWriter;
     }
 
-    public static byte[] generateFromXDocReport(byte[] temp, String jsonData, String name) throws IOException, XDocReportException {
+
+    private static byte[] convertToPdf(String xmlContent) throws Exception {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            InputStream xsltInputStream = Util.class.getResourceAsStream("/templates/fop.xsl"); // XSLT stylesheet for PDF transformation
+
+            StreamSource xsltStreamSource = new StreamSource(xsltInputStream);
+            Transformer transformer = transformerFactory.newTransformer(xsltStreamSource);
+
+            Source source = new StreamSource(new ByteArrayInputStream(xmlContent.getBytes()));
+            fopFactory.newFop(MimeConstants.MIME_PDF, outputStream);
+
+            Result result = new StreamResult(outputStream);
+            transformer.transform(source, new StreamResult(new OutputStream() {
+                @Override
+                public void write(int b) throws IOException {
+                    outputStream.write(b);
+                }
+            }));
+
+            return outputStream.toByteArray();
+        }
+    }
+
+    public static byte[] generateFromXDocReport(byte[] temp, String jsonData, String name) throws Exception {
+        FreemarkerTemplateEngine templateEngine = new FreemarkerTemplateEngine();
+/*
+        // Load the ODT template from byte array
+        InputStream odtTemplateStream = new ByteArrayInputStream(odtTemplateBytes);
+        IXDocReport xDocReport = templateEngine.lo(odtTemplateStream, TemplateEngineKind.Freemarker);
+
+        // Create a context and put data
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        xDocReport.createContext().put("name", "John Doe");
+
+        // Generate the output as DOCX
+        xDocReport.convert(out, ConverterTypeTo.DOCX);
+
+        // Save DOCX content to file
+        try (FileOutputStream fos = new FileOutputStream("output.docx")) {
+            out.writeTo(fos);
+        }*/
+
+
+
+
         try {
             byte[] templateBytes = temp;
             String jsonString = jsonData;

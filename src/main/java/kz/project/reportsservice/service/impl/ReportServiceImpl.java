@@ -14,22 +14,27 @@ import kz.project.reportsservice.producer.Producer;
 import kz.project.reportsservice.service.ReportService;
 import lombok.RequiredArgsConstructor;
 import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JRExporterParameter;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.export.HtmlExporter;
-import net.sf.jasperreports.export.HtmlExporterConfiguration;
-import net.sf.jasperreports.export.SimpleExporterInput;
-import net.sf.jasperreports.export.SimpleHtmlExporterOutput;
+import net.sf.jasperreports.engine.export.JRCsvExporter;
+import net.sf.jasperreports.engine.export.JRPdfExporter;
+import net.sf.jasperreports.engine.export.JRPdfExporterParameter;
+import net.sf.jasperreports.engine.export.ooxml.JRDocxExporter;
+import net.sf.jasperreports.engine.fonts.FontFamily;
+import net.sf.jasperreports.export.*;
+import net.sf.jasperreports.extensions.ExtensionsEnvironment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
-import net.sf.jasperreports.export.SimpleHtmlExporterConfiguration;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
+import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -49,7 +54,9 @@ public class ReportServiceImpl implements ReportService {
     private final ReportRepository repository;
 
     @Override
-    public ResponseDto getReport(ReportDto dto) throws IOException, JRException, XDocReportException, TemplateException {
+    public ResponseDto getReport(ReportDto dto) throws Exception {
+        java.util.List<FontFamily> extensions = ExtensionsEnvironment.getExtensionsRegistry().getExtensions(FontFamily.class);
+        System.out.println("Available fonts: " + extensions);
         if (dto == null) throw  new RuntimeException( "dto is empty");
         byte[] contentAsByteArray = dto.getData().getBytes(StandardCharsets.UTF_8);
         if (dto.getAcync()) {
@@ -68,8 +75,16 @@ public class ReportServiceImpl implements ReportService {
             JasperPrint print = generateJasperReport(templBody, dto.getData().getBytes(StandardCharsets.UTF_8));
             return switch (ReportTypeEnum.valueOf(dto.getReportType())) {
                 case DOC -> {
-                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                    HtmlExporter exporter = new HtmlExporter();
+                    JRDocxExporter exporter = new JRDocxExporter();
+                    SimpleDocxExporterConfiguration configuration = new SimpleDocxExporterConfiguration();
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    exporter.setConfiguration(configuration);
+                    // Set the input (JasperPrint)
+
+                    exporter.setExporterInput(new SimpleExporterInput(print));
+                    exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(bos));
+                    exporter.exportReport();
+                   /* HtmlExporter exporter = new HtmlExporter();
                     exporter.setExporterInput(new SimpleExporterInput(print));
                     exporter.setExporterOutput(new SimpleHtmlExporterOutput(byteArrayOutputStream));
                     exporter.exportReport();
@@ -79,9 +94,9 @@ public class ReportServiceImpl implements ReportService {
                     for (Element element : elements) {
                         XWPFParagraph paragraph = document.createParagraph();
                         paragraph.createRun().setText(element.text());
-                    }
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                        document.write(bos);
+                    }*/
+                   /* ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                        document.write(bos);*/
                     yield new ResponseDto(bos.toByteArray(),ReportTypeEnum.DOC);
                 }
                 case HTML -> {
@@ -108,19 +123,42 @@ public class ReportServiceImpl implements ReportService {
                     yield new ResponseDto(string.getBytes(StandardCharsets.UTF_8), ReportTypeEnum.XML);
                 }
                 case PDF -> {
-                    /*ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    JRPdfExporter exporter = new JRPdfExporter();
-                    exporter.setExporterInput(new SimpleExporterInput(print));
-                    exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(bos));
-                    // Set font for PDF export
-                    SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
-                    configuration.setIccProfilePath("/home/bazarbay/IdeaProjects/startup/reports-service/src/main/resources/AdobeRGB1998.icc");
-                    configuration.setEmbedIccProfile(true);
-                    configuration.setPdfaConformance(PdfaConformanceEnum.PDFA_1B);
-                    exporter.setConfiguration(configuration);
-                    exporter.exportReport();*/
+
                     byte[] bytes = JasperExportManager.exportReportToPdf(print);
                     yield new ResponseDto(bytes,ReportTypeEnum.PDF);
+                }
+                case RTF -> {
+                    JRDocxExporter exporter = new JRDocxExporter();
+
+                    // Set the input source
+                    exporter.setExporterInput(new SimpleExporterInput(print));
+
+                    // Set the output stream
+                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                    exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(outputStream));
+
+                    // Configure RTF exporter
+                    SimpleDocxExporterConfiguration configuration = new SimpleDocxExporterConfiguration();
+                    exporter.setConfiguration(configuration);
+
+                    // Export the RTF
+                    exporter.exportReport();
+                    yield new ResponseDto(outputStream.toByteArray(),ReportTypeEnum.RTF);
+                }
+                case CSV -> {
+                    JRCsvExporter exporter = new JRCsvExporter();
+
+                    // Set the input source
+                    exporter.setExporterInput(new SimpleExporterInput(print));
+
+                    // Set the output writer
+                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                    exporter.setExporterOutput(new SimpleWriterExporterOutput(outputStream));
+
+                    // Export the CSV
+                    exporter.exportReport();
+                    yield new ResponseDto(outputStream.toByteArray(),ReportTypeEnum.CSV);
+
                 }
                 default -> null;
             };
