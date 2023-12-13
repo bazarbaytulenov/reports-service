@@ -29,6 +29,7 @@ import net.sf.jasperreports.engine.export.JRPdfExporter;
 import net.sf.jasperreports.engine.export.JRPdfExporterParameter;
 import net.sf.jasperreports.engine.export.ooxml.JRDocxExporter;
 import net.sf.jasperreports.engine.fonts.FontFamily;
+import net.sf.jasperreports.engine.fonts.SimpleFontExtensionsRegistryFactory;
 import net.sf.jasperreports.export.*;
 import net.sf.jasperreports.extensions.ExtensionsEnvironment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -81,6 +82,7 @@ public class ReportServiceImpl implements ReportService {
                     JRDocxExporter exporter = new JRDocxExporter();
                     SimpleDocxExporterConfiguration configuration = new SimpleDocxExporterConfiguration();
                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    configuration.setEmbedFonts(true);
                     exporter.setConfiguration(configuration);
                     // Set the input (JasperPrint)
 
@@ -114,7 +116,33 @@ public class ReportServiceImpl implements ReportService {
                 }
                 case PDF -> {
 
-                    byte[] bytes = JasperExportManager.exportReportToPdf(print);
+                    JRPdfExporter exporter = new JRPdfExporter();
+
+                    exporter.setExporterInput(new SimpleExporterInput(print));
+                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                    exporter.setExporterOutput(
+                            new SimpleOutputStreamExporterOutput(outputStream));
+
+                    SimplePdfReportConfiguration reportConfig
+                            = new SimplePdfReportConfiguration();
+                    reportConfig.setSizePageToContent(true);
+                    reportConfig.setForceLineBreakPolicy(true);
+                    reportConfig.setOverrideHints(true);
+
+
+                    SimplePdfExporterConfiguration exportConfig
+                            = new SimplePdfExporterConfiguration();
+                    //exportConfig.setMetadataAuthor("baeldung");
+                    //exportConfig.setEncrypted(true);
+                    //exportConfig.setAllowedPermissionsHint("PRINTING");
+
+                    exporter.setConfiguration(reportConfig);
+                    exporter.setConfiguration(exportConfig);
+
+                    exporter.exportReport();
+
+                    byte[] bytes = outputStream.toByteArray();
+                            //JasperExportManager.exportReportToPdfFile(print,"C:\\Users\\b.tulenov\\IdeaProjects\\reports-service\\src\\main\\resources\\");
                     yield new ResponseDto(bytes,ReportTypeEnum.PDF);
                 }
                 case RTF -> {

@@ -20,6 +20,9 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JsonDataSource;
+import net.sf.jasperreports.engine.design.JRDesignStyle;
+import net.sf.jasperreports.engine.design.JasperDesign;
+import net.sf.jasperreports.engine.xml.JRXmlLoader;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.MimeConstants;
@@ -52,13 +55,20 @@ public class Util {
         JsonDataSource data1Source = new JsonDataSource(new ByteArrayInputStream(json));
         Locale locale = new Locale("ru", "RU");
         Map<String, Object> parameters = new HashMap<>();
+        parameters.put("net.sf.jasperreports.export.pdf.encoding", "Identity-H");
+
+
+
         /*parameters.put("REPORT_LOCALE", locale);
         parameters.put("net.sf.jasperreports.export.character.encoding", "UTF-8");
         parameters.put("net.sf.jasperreports.export.xml.encoding", "UTF-8");
         jasperReport.setProperty("net.sf.jasperreports.export.character.encoding", "UTF-8");
         parameters.put("net.sf.jasperreports.export.pdf.font.name", "DejaVuSans");
         parameters.put("net.sf.jasperreports.export.pdf.embedded", true);*/
-        return JasperFillManager.fillReport(jasperReport, parameters, data1Source);
+        /*InputStream styleStream = Util.class.getResourceAsStream("/reportStyle.jrss");
+        JasperDesign load1 = JRXmlLoader.load(styleStream);*/
+        JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, data1Source);
+        return jasperPrint;
 
     }
 
