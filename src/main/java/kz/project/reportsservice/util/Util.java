@@ -27,6 +27,9 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
+import org.apache.poi.xwpf.converter.pdf.PdfConverter;
+import org.apache.poi.xwpf.converter.pdf.PdfOptions;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.odftoolkit.simple.TextDocument;
 
 import javax.xml.transform.Result;
@@ -53,14 +56,24 @@ public class Util {
         parameters.put("net.sf.jasperreports.export.character.encoding", "UTF-8");
         parameters.put("net.sf.jasperreports.export.xml.encoding", "UTF-8");
         jasperReport.setProperty("net.sf.jasperreports.export.character.encoding", "UTF-8");
-        parameters.put("net.sf.jasperreports.export.pdf.font.name", "DejaVu Sans");
+        parameters.put("net.sf.jasperreports.export.pdf.font.name", "DejaVuSans");
         parameters.put("net.sf.jasperreports.export.pdf.embedded", true);*/
         return JasperFillManager.fillReport(jasperReport, parameters, data1Source);
 
     }
 
     public static byte[] generateFreeemarkerReport(byte[] temp, String jsonData, String name) throws Exception {
-         return convertToPdf(getStringWriter(temp,jsonData,name).toString());
+        ByteArrayInputStream is = new ByteArrayInputStream(temp);
+        XWPFDocument document = new XWPFDocument(is);
+
+        // 2) Prepare Pdf options
+        PdfOptions options = PdfOptions.create();
+
+        // 3) Convert XWPFDocument to Pdf
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        PdfConverter.getInstance().convert(document, os, options);
+
+         return os.toByteArray();
 
 
        /* StringWriter stringWriter = getStringWriter(temp, jsonData, name);

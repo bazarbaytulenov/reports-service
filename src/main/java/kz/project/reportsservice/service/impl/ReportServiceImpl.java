@@ -1,6 +1,12 @@
 package kz.project.reportsservice.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.opensagres.xdocreport.core.XDocReportException;
+import fr.opensagres.xdocreport.document.IXDocReport;
+import fr.opensagres.xdocreport.document.json.JSONObject;
+import fr.opensagres.xdocreport.document.registry.XDocReportRegistry;
+import fr.opensagres.xdocreport.template.IContext;
+import fr.opensagres.xdocreport.template.TemplateEngineKind;
 import freemarker.template.TemplateException;
 import kz.project.reportsservice.data.dto.AmqpDto;
 import kz.project.reportsservice.data.dto.ReportDto;
@@ -35,10 +41,7 @@ import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.StringWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -84,19 +87,6 @@ public class ReportServiceImpl implements ReportService {
                     exporter.setExporterInput(new SimpleExporterInput(print));
                     exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(bos));
                     exporter.exportReport();
-                   /* HtmlExporter exporter = new HtmlExporter();
-                    exporter.setExporterInput(new SimpleExporterInput(print));
-                    exporter.setExporterOutput(new SimpleHtmlExporterOutput(byteArrayOutputStream));
-                    exporter.exportReport();
-                    Document doc = Jsoup.parse(String.valueOf(byteArrayOutputStream), "UTF-8");
-                    XWPFDocument document = new XWPFDocument();
-                    Elements elements = doc.body().children();
-                    for (Element element : elements) {
-                        XWPFParagraph paragraph = document.createParagraph();
-                        paragraph.createRun().setText(element.text());
-                    }*/
-                   /* ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                        document.write(bos);*/
                     yield new ResponseDto(bos.toByteArray(),ReportTypeEnum.DOC);
                 }
                 case HTML -> {
@@ -165,7 +155,21 @@ public class ReportServiceImpl implements ReportService {
         }
         if(templateType.equals(TemplateTypeEnum.FREEMARKER.getValue()))
             return switch (ReportTypeEnum.valueOf(dto.getReportType())) {
-                case DOC -> null;
+                case DOC -> {
+                    // it to the registry
+                    InputStream in = new ByteArrayInputStream(templBody);
+                    IXDocReport report = XDocReportRegistry.getRegistry().loadReport(in, TemplateEngineKind.Freemarker);
+
+                    // 2) Create context Java model
+                    IContext context = report.createContext();
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    Map<String, Object> jsonData = objectMapper.readValue(dto.getData(), HashMap.class);
+                    context.putMap(jsonData);
+                    // 3) Generate report by merging Java model with the Docx
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    report.process(context, out);
+                    yield new ResponseDto(out.toByteArray(), ReportTypeEnum.DOC);
+                }
                 case HTML -> new ResponseDto(getStringWriter(templBody,new String(contentAsByteArray), dto.getFileName())
                         .toString()
                         .getBytes(StandardCharsets.UTF_8),ReportTypeEnum.HTML);
