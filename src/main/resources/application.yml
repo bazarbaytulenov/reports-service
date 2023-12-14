@@ -46,3 +46,14 @@ rabbitmq:
   routing_key: ${RABBITMQ_ROUTING_KEY:routing_key_report}
 
 
+net:
+  sf:
+    jasperreports:
+      extension:
+        registry:
+          factory:
+            fonts: net.sf.jasperreports.engine.fonts.SimpleFontExtensionsRegistryFactory
+        simple:
+          font:
+            families:
+              ireportfamily1565796714618: fonts/fontsfamily1565796714618.xml
