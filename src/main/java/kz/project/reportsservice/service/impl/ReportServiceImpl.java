@@ -1,6 +1,11 @@
 package kz.project.reportsservice.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.opensagres.xdocreport.converter.ConverterRegistry;
+import fr.opensagres.xdocreport.converter.ConverterTypeTo;
+import fr.opensagres.xdocreport.converter.IConverter;
+import fr.opensagres.xdocreport.converter.Options;
+import fr.opensagres.xdocreport.core.document.DocumentKind;
 import fr.opensagres.xdocreport.document.IXDocReport;
 import fr.opensagres.xdocreport.document.registry.XDocReportRegistry;
 import fr.opensagres.xdocreport.template.IContext;
@@ -184,6 +189,18 @@ public class ReportServiceImpl implements ReportService {
                 }
                 case XML -> null;
                 case PDF -> {
+                    IXDocReport xdocGenerator = XDocReportRegistry.getRegistry().loadReport(new ByteArrayInputStream(templBody),TemplateEngineKind.Freemarker);
+                    IContext context = xdocGenerator.createContext();
+                    context.putMap( new ObjectMapper().readValue(dto.getData(),Map.class));
+                    Options options = Options.getFrom(DocumentKind.ODT).to(ConverterTypeTo.PDF);
+
+                    // 2) Get the converter from the registry
+                    IConverter converter = ConverterRegistry.getRegistry().getConverter(options);
+
+                    // 3) Convert ODT 2 PDF
+                    ByteArrayInputStream in= new ByteArrayInputStream(templBody);
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    converter.convert(in, out, options);
                     Map<String, byte[]> body = new HashMap<>();
                     body.put("body", templBody);
                     body.put("body", templhead);
