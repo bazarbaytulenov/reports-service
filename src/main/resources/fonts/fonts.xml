@@ -3,10 +3,10 @@
 <fontFamilies>
 
 	<fontFamily name="Times New Roman">
-	   <normal>net/sf/jasperreports/fonts/timesnewroman/times.ttf</normal>
-	   <bold>net/sf/jasperreports/fonts/timesnewroman/timesbd.ttf</bold>
-	   <italic>net/sf/jasperreports/fonts/timesnewroman/timesi.ttf</italic>
-	   <boldItalic>net/sf/jasperreports/fonts/timesnewroman/timesbi.ttf</boldItalic>
+	   <normal>![CDATA[fonts/timesnewroman/times.ttf]]</normal>
+	   <bold>![CDATA[fonts/timesnewroman/timesbd.ttf]]</bold>
+	   <italic>![CDATA[fonts/timesnewroman/timesi.ttf]]</italic>
+	   <boldItalic>![CDATA[fonts/timesnewroman/timesbi.ttf]]</boldItalic>
 	   <pdfEncoding>Identity-H</pdfEncoding>
 	   <pdfEmbedded>true</pdfEmbedded>
 	   <exportFonts>
@@ -16,50 +16,50 @@
 	</fontFamily>
 
 
-	<fontFamily name="DejaVu Sans">
-		<normal>fonts/dejavu/DejaVuSans.ttf</normal>
-		<bold>net/sf/jasperreports/fonts/dejavu/DejaVuSans-Bold.ttf</bold>
-		<italic>net/sf/jasperreports/fonts/dejavu/DejaVuSans-Oblique.ttf</italic>
-		<boldItalic>net/sf/jasperreports/fonts/dejavu/DejaVuSans-BoldOblique.ttf</boldItalic>
-		<pdfEncoding>Identity-H</pdfEncoding>
-		<pdfEmbedded>true</pdfEmbedded>
-		<exportFonts>
-			<export key="net.sf.jasperreports.html">'DejaVu Sans', Arial, Helvetica, sans-serif</export>
-			<export key="net.sf.jasperreports.xhtml">'DejaVu Sans', Arial, Helvetica, sans-serif</export>
-		</exportFonts>
-		<!--
-		<locales>
-			<locale>en_US</locale>
-			<locale>de_DE</locale>
-		</locales>
-		-->
-	</fontFamily>
+<!--	<fontFamily name="DejaVu Sans">-->
+<!--		<normal>/home/bazarbay/IdeaProjects/startup/reports-service/src/main/resources/fonts/dejavu/DejaVuSans.ttf</normal>-->
+<!--		<bold>/home/bazarbay/IdeaProjects/startup/reports-service/src/main/resources/fonts/dejavu/DejaVuSans-Bold.ttf</bold>-->
+<!--		<italic>/home/bazarbay/IdeaProjects/startup/reports-service/src/main/resources/fonts/dejavu/DejaVuSans-Oblique.ttf</italic>-->
+<!--		<boldItalic>/home/bazarbay/IdeaProjects/startup/reports-service/src/main/resources/fonts/dejavu/DejaVuSans-BoldOblique.ttf</boldItalic>-->
+<!--		<pdfEncoding>Identity-H</pdfEncoding>-->
+<!--		<pdfEmbedded>true</pdfEmbedded>-->
+<!--		<exportFonts>-->
+<!--			<export key="net.sf.jasperreports.html">'DejaVu Sans', Arial, Helvetica, sans-serif</export>-->
+<!--			<export key="net.sf.jasperreports.xhtml">'DejaVu Sans', Arial, Helvetica, sans-serif</export>-->
+<!--		</exportFonts>-->
+<!--		&lt;!&ndash;-->
+<!--		<locales>-->
+<!--			<locale>en_US</locale>-->
+<!--			<locale>de_DE</locale>-->
+<!--		</locales>-->
+<!--		&ndash;&gt;-->
+<!--	</fontFamily>-->
 
-	<fontFamily name="DejaVu Serif">
-		<normal>net/sf/jasperreports/fonts/dejavu/DejaVuSerif.ttf</normal>
-		<bold>net/sf/jasperreports/fonts/dejavu/DejaVuSerif-Bold.ttf</bold>
-		<italic>net/sf/jasperreports/fonts/dejavu/DejaVuSerif-Italic.ttf</italic>
-		<boldItalic>net/sf/jasperreports/fonts/dejavu/DejaVuSerif-BoldItalic.ttf</boldItalic>
-		<pdfEncoding>Identity-H</pdfEncoding>
-		<pdfEmbedded>true</pdfEmbedded>
-		<exportFonts>
-			<export key="net.sf.jasperreports.html">'DejaVu Serif', 'Times New Roman', Times, serif</export>
-			<export key="net.sf.jasperreports.xhtml">'DejaVu Serif', 'Times New Roman', Times, serif</export>
-		</exportFonts>
-	</fontFamily>
+<!--	<fontFamily name="DejaVu Serif">-->
+<!--		<normal>/home/bazarbay/IdeaProjects/startup/reports-service/src/main/resources/fonts/dejavu/DejaVuSerif.ttf</normal>-->
+<!--		<bold>/home/bazarbay/IdeaProjects/startup/reports-service/src/main/resources/fonts/dejavu/DejaVuSerif-Bold.ttf</bold>-->
+<!--		<italic>net/sf/jasperreports/fonts/dejavu/DejaVuSerif-Italic.ttf</italic>-->
+<!--		<boldItalic>/home/bazarbay/IdeaProjects/startup/reports-service/src/main/resources/fonts/dejavu/DejaVuSerif-BoldItalic.ttf</boldItalic>-->
+<!--		<pdfEncoding>Identity-H</pdfEncoding>-->
+<!--		<pdfEmbedded>true</pdfEmbedded>-->
+<!--		<exportFonts>-->
+<!--			<export key="net.sf.jasperreports.html">'DejaVu Serif', 'Times New Roman', Times, serif</export>-->
+<!--			<export key="net.sf.jasperreports.xhtml">'DejaVu Serif', 'Times New Roman', Times, serif</export>-->
+<!--		</exportFonts>-->
+<!--	</fontFamily>-->
 
-	<fontFamily name="DejaVu Sans Mono">
-		<normal>net/sf/jasperreports/fonts/dejavu/DejaVuSansMono.ttf</normal>
-		<bold>net/sf/jasperreports/fonts/dejavu/DejaVuSansMono-Bold.ttf</bold>
-		<italic>net/sf/jasperreports/fonts/dejavu/DejaVuSansMono-Oblique.ttf</italic>
-		<boldItalic>net/sf/jasperreports/fonts/dejavu/DejaVuSansMono-BoldOblique.ttf</boldItalic>
-		<pdfEncoding>Identity-H</pdfEncoding>
-		<pdfEmbedded>true</pdfEmbedded>
-		<exportFonts>
-			<export key="net.sf.jasperreports.html">'DejaVu Sans Mono', 'Courier New', Courier, monospace</export>
-			<export key="net.sf.jasperreports.xhtml">'DejaVu Sans Mono', 'Courier New', Courier, monospace</export>
-		</exportFonts>
-	</fontFamily>
+<!--	<fontFamily name="DejaVu Sans Mono">-->
+<!--		<normal>/home/bazarbay/IdeaProjects/startup/reports-service/src/main/resources/fonts/dejavu/DejaVuSansMono.ttf</normal>-->
+<!--		<bold>/home/bazarbay/IdeaProjects/startup/reports-service/src/main/resources/fonts/dejavu/DejaVuSansMono-Bold.ttf</bold>-->
+<!--		<italic>/home/bazarbay/IdeaProjects/startup/reports-service/src/main/resources/fonts/dejavu/DejaVuSansMono-Oblique.ttf</italic>-->
+<!--		<boldItalic>/home/bazarbay/IdeaProjects/startup/reports-service/src/main/resources/fonts/dejavu/DejaVuSansMono-BoldOblique.ttf</boldItalic>-->
+<!--		<pdfEncoding>Identity-H</pdfEncoding>-->
+<!--		<pdfEmbedded>true</pdfEmbedded>-->
+<!--		<exportFonts>-->
+<!--			<export key="net.sf.jasperreports.html">'DejaVu Sans Mono', 'Courier New', Courier, monospace</export>-->
+<!--			<export key="net.sf.jasperreports.xhtml">'DejaVu Sans Mono', 'Courier New', Courier, monospace</export>-->
+<!--		</exportFonts>-->
+<!--	</fontFamily>-->
 
 	<!--
 		Mapping Java logical fonts, for the sake of HTML export only.

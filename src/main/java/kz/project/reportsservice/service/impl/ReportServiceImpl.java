@@ -1,13 +1,10 @@
 package kz.project.reportsservice.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.opensagres.xdocreport.core.XDocReportException;
 import fr.opensagres.xdocreport.document.IXDocReport;
-import fr.opensagres.xdocreport.document.json.JSONObject;
 import fr.opensagres.xdocreport.document.registry.XDocReportRegistry;
 import fr.opensagres.xdocreport.template.IContext;
 import fr.opensagres.xdocreport.template.TemplateEngineKind;
-import freemarker.template.TemplateException;
 import kz.project.reportsservice.data.dto.AmqpDto;
 import kz.project.reportsservice.data.dto.ReportDto;
 import kz.project.reportsservice.data.dto.ResponseDto;
@@ -19,34 +16,27 @@ import kz.project.reportsservice.feign.PrintedFormsFeignClient;
 import kz.project.reportsservice.producer.Producer;
 import kz.project.reportsservice.service.ReportService;
 import lombok.RequiredArgsConstructor;
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JRExporterParameter;
-import net.sf.jasperreports.engine.JasperExportManager;
-import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.export.HtmlExporter;
 import net.sf.jasperreports.engine.export.JRCsvExporter;
-import net.sf.jasperreports.engine.export.JRPdfExporter;
-import net.sf.jasperreports.engine.export.JRPdfExporterParameter;
 import net.sf.jasperreports.engine.export.ooxml.JRDocxExporter;
+import net.sf.jasperreports.engine.export.ooxml.JRDocxExporterParameter;
 import net.sf.jasperreports.engine.fonts.FontFamily;
 import net.sf.jasperreports.export.*;
 import net.sf.jasperreports.extensions.ExtensionsEnvironment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
-import java.awt.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static kz.project.reportsservice.util.Util.*;
+import static net.sf.jasperreports.engine.export.JRPdfExporter.PDF_FONT_FILES_PREFIX;
 
 @Service
 @RequiredArgsConstructor
@@ -78,8 +68,9 @@ public class ReportServiceImpl implements ReportService {
             JasperPrint print = generateJasperReport(templBody, dto.getData().getBytes(StandardCharsets.UTF_8));
             return switch (ReportTypeEnum.valueOf(dto.getReportType())) {
                 case DOC -> {
-                    JRDocxExporter exporter = new JRDocxExporter();
+;                   JRDocxExporter exporter = new JRDocxExporter();
                     SimpleDocxExporterConfiguration configuration = new SimpleDocxExporterConfiguration();
+                    configuration.setEmbedFonts(true);
                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
                     exporter.setConfiguration(configuration);
                     // Set the input (JasperPrint)
@@ -113,7 +104,6 @@ public class ReportServiceImpl implements ReportService {
                     yield new ResponseDto(string.getBytes(StandardCharsets.UTF_8), ReportTypeEnum.XML);
                 }
                 case PDF -> {
-
                     byte[] bytes = JasperExportManager.exportReportToPdf(print);
                     yield new ResponseDto(bytes,ReportTypeEnum.PDF);
                 }

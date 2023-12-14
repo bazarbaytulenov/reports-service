@@ -47,17 +47,17 @@ import java.util.Map;
 
 public class Util {
     public static JasperPrint generateJasperReport(byte[] template, byte[] json) throws JRException, FileNotFoundException {
+        JasperReportsContext jasperReportsContext = DefaultJasperReportsContext.getInstance();
+        jasperReportsContext.setProperty("net.sf.jasperreports.export.pdf.font.files.prefix", "/fonts/fonts.xml");
+        jasperReportsContext.setProperty("net.sf.jasperreports.export.doc.font.files.prefix", "/fonts/fonts.xml");
+        jasperReportsContext.setProperty("net.sf.jasperreports.default.pdf.encoding","Helvetica");
+        jasperReportsContext.setProperty("net.sf.jasperreports.default.doc.encoding","UTF-8");
+        jasperReportsContext.setProperty("net.sf.jasperreports.default.font.name","DejaVu Sans");
         JasperReport jasperReport = JasperCompileManager.compileReport(new ByteArrayInputStream(template));
         jasperReport.setProperty("locale", "ru_Rus");
         JsonDataSource data1Source = new JsonDataSource(new ByteArrayInputStream(json));
         Locale locale = new Locale("ru", "RU");
         Map<String, Object> parameters = new HashMap<>();
-        /*parameters.put("REPORT_LOCALE", locale);
-        parameters.put("net.sf.jasperreports.export.character.encoding", "UTF-8");
-        parameters.put("net.sf.jasperreports.export.xml.encoding", "UTF-8");
-        jasperReport.setProperty("net.sf.jasperreports.export.character.encoding", "UTF-8");
-        parameters.put("net.sf.jasperreports.export.pdf.font.name", "DejaVuSans");
-        parameters.put("net.sf.jasperreports.export.pdf.embedded", true);*/
         return JasperFillManager.fillReport(jasperReport, parameters, data1Source);
 
     }
